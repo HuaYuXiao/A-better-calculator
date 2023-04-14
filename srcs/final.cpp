@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <typeinfo>
+
 using namespace std;
 
 int priority(char this_opt);									//操作符的优先级
@@ -18,14 +19,20 @@ double cvt_num(string this_num);
 bool if_legal(string input);//判断输入类型：false为非法，true为合法
 bool if_sqrt(string& input);//判断是否为开方函数
 string cal_sqrt(string& input);//计算开方函数
-int if_rec(string& input);					//判断是否为三角函数或反三角函数并返回对应的编号
-string cal_rec(string& input, int rec_kind);/*求三角函数里包含的数字并求出对应的结果*/
-bool if_fac(string& input);/*判断是否为求阶乘*/
-int which_fac(string& theStr);				// 求阶乘所求的数字
-int cal_fac(int this_num);							//利用数组求阶乘
-double cal_nor(string this_expr);							//计算后缀表达式
-
-int arr_fac[1000] = {0};//求阶乘所用数组
+//判断是否为三角函数或反三角函数并返回对应的编号
+int if_rec(string& input);
+/*求三角函数里包含的数字并求出对应的结果*/
+string cal_rec(string& input, int rec_kind);
+/*判断是否为求阶乘*/
+bool if_fac(string& input);
+// 求阶乘所求的数字
+int which_fac(string& theStr);
+//利用数组求阶乘
+int cal_fac(int this_num);	
+//计算后缀表达式
+double cal_nor(string this_expr);							
+//求阶乘所用数组
+int arr_fac[1000] = {0};
 
 int priority(char this_opt){
     switch(this_opt){
@@ -61,8 +68,10 @@ double cal_nor(string this_expr){
 
             //判断是否为数值
             for(int k=0; k<current.size(); k++){
-                if(current[k]>=48 && current[k]<=57){//数字
-                    istringstream iss(current);//strinf转double
+		    //数字
+                if(current[k]>=48 && current[k]<=57){
+			//strinf转double
+                    istringstream iss(current);
                     double num;
                     iss >> num;
                     stk_num.push(num);
@@ -86,7 +95,8 @@ double cal_nor(string this_expr){
                 else if(current=="/") stk_num.push(num1/num2);
                 else if(current=="^") stk_num.push(pow(num1, num2));   
             }
-            current="";//清空当前字符串;
+		//清空当前字符串;
+            current="";
         }
         i++;
     }
@@ -97,29 +107,42 @@ double cal_nor(string this_expr){
 
 string cvt_expr(string before){
     stack<char> stk_opt;
-    string after = "";//初始化后缀表达式
+	//初始化后缀表达式
+    string after = "";
     char this_opt;
     bool if_negative=false;
-    int i=0;//i为中缀当前指向 
-    int j = 0;//j为后缀当前指向
+	//i为中缀当前指向 
+    int i=0;
+	//j为后缀当前指向
+    int j = 0;
     while(before[i]!='\0'){
         if(i+1!='\0') if_negative=false;
-        if(before[i]>=48 && before[i]<=57){ //判断数字      
-            after[j++] = '?';//j是后缀表达索引
-            after[j++] =before[i];//存储当前数字并指向下一个
-            while(before[++i]>=48 && before[i]<=57) after[j++] =before[i];//整数部分
-            if(before[i]=='.'){ //是小数
+	    //判断数字      
+        if(before[i]>=48 && before[i]<=57){ 
+		//j是后缀表达索引
+            after[j++] = '?';
+		//存储当前数字并指向下一个
+            after[j++] =before[i];
+		//整数部分
+            while(before[++i]>=48 && before[i]<=57) after[j++] =before[i];
+		//是小数
+            if(before[i]=='.'){ 
                 after[j++]='.';
-                i+=1;//中缀索引 往后移
-                while(before[i]>=48 && before[i]<=57){ //小数部分
+		    //中缀索引 往后移
+                i+=1;
+		    //小数部分
+                while(before[i]>=48 && before[i]<=57){ 
                     after[j++] =before[i];
                     i+=1;
                 }
             }
         }
-        else if(before[i]=='(') stk_opt.push(before[i++]);//如果读入(，因为左括号优先级最高，因此放入栈中，但是注意，当左括号放入栈中后，则优先级最低。
-        else if(before[i]==')'){//如果读入），则将栈中运算符取出放入输出字符串，直到取出（为止   
-            if(stk_opt.empty()) cout<< "error" <<endl;//没有左括号
+	    //如果读入(，因为左括号优先级最高，因此放入栈中，但是注意，当左括号放入栈中后，则优先级最低
+        else if(before[i]=='(') stk_opt.push(before[i++]);
+	    //如果读入），则将栈中运算符取出放入输出字符串，直到取出（为止
+        else if(before[i]==')'){   
+		//没有左括号
+            if(stk_opt.empty()) cout<< "error" <<endl;
             else{
                 this_opt = stk_opt.top();
                 while(this_opt!='('){
@@ -132,7 +155,8 @@ string cvt_expr(string before){
                     }
                     this_opt = stk_opt.top();
                 }
-                stk_opt.pop();//删除栈中(
+		    //删除栈中(
+                stk_opt.pop();
                 i++;
             }
         }
@@ -140,16 +164,22 @@ string cvt_expr(string before){
         else if(before[i]=='+'||before[i]=='-'||before[i]=='/'||before[i]=='*'){
             //判断负数
             if(before[i]=='-'){
-                if(i==0) if_negative=true;//第一个为‘-’时为负号
-                else if(before[i-1]=='+'||before[i-1]=='-'||before[i-1]=='/'||before[i-1]=='*') if_negative=true;//如果前面有操作符则为负号
+		    //第一个为‘-’时为负号
+                if(i==0) if_negative=true;
+		    //如果前面有操作符则为负号
+                else if(before[i-1]=='+'||before[i-1]=='-'||before[i-1]=='/'||before[i-1]=='*') if_negative=true;
                 if(if_negative){
-                    after[j++] = '?';//负号
+			//负号
+                    after[j++] = '?';
                     after[j++] = '-';
                     i++;
-                    if(before[i]>=48 && before[i]<=57){ //判断数字                    
+			//负号
+                    if(before[i]>=48 && before[i]<=57){ x                    
                         after[j++] =before[i];
-                        while(before[++i]>=48 && before[i]<=57) after[j++] =before[i];//整数部分
-                        if(before[i]=='.'){//是小数
+						       //整数部分
+                        while(before[++i]>=48 && before[i]<=57) after[j++] =before[i];
+						       //是小数
+                        if(before[i]=='.'){
                             after[j++]='.';
                             i++;
                             while(before[i]>=48 && before[i]<=57){ //小数部分
@@ -377,14 +407,14 @@ int main(){
     cout << "result:" << endl;
     
     if(if_sqrt(input)) cout << cal_sqrt(input) << endl; 
-    
-    else if(if_rec(input) != 0) {		//判断是否三角函数和反三角函数并求值
+    //判断是否三角函数和反三角函数并求值
+    else if(if_rec(input) != 0) {		
         string result ="";
         result = cal_rec(input, if_rec(input));
         cout << result << endl;           
     }
-
-    else if (if_fac(input)) {//求阶乘的情况
+//求阶乘的情况
+    else if (if_fac(input)) {
         int n = which_fac(input);
         for (int i = cal_fac(n); i > 0; i--) cout << arr_fac[i];
     }
