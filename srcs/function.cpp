@@ -1,3 +1,17 @@
+#include <sstream>
+#include<stdlib.h>
+#include <math.h>
+#include <complex>
+#include <complex.h>
+#include <iostream>
+#include <cstring>
+#include <cmath>
+#include <stack>
+#include <iomanip>
+#include <cstdlib>
+#include <typeinfo>
+
+using namespace std;
 
 int priority(char this_opt){
     switch(this_opt){
